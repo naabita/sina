@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>Sistem Informasi Nilai Asesmen</title>
+  
+  <!-- SweetAlert2 CSS & JS -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Apps Script API -->
+  <script src="https://script.google.com/macros/s/AKfycbx_placeholder/exec"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f5f7fb;
+      color: #1e293b;
+      padding: 0;
+      margin: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .app-container {
+      min-height: 100%;
+      padding-bottom: 20px;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: 16px 16px 0;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #e9eef3;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-top: 8px;
+    }
+    
+    .logo {
+      height: 50px;
+      margin-bottom: 8px;
+      background: transparent;
+    }
+    
+    .header h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    
+    .login-box {
+      background: white;
+      border-radius: 24px;
+      padding: 28px 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: #475569;
+      display: block;
+      margin-bottom: 8px;
+    }
+    
+    .input-wrapper {
+      position: relative;
+    }
+    
+    .input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+    
+    input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      font-size: 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      font-family: inherit;
+      background: #ffffff;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    
+    button {
+      background: #0f172a;
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 40px;
+      cursor: pointer;
+      width: 100%;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    
+    button:active {
+      transform: scale(0.97);
+    }
+    
+    button.secondary {
+      background: white;
+      color: #1e293b;
+      border: 1.5px solid #cbd5e1;
+    }
+    
+    .btn-small {
+      background: #3b82f6;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      width: auto;
+      border-radius: 30px;
+    }
+    
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 0 -8px;
+      padding: 0 8px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    
+    th, td {
+      text-align: left;
+      padding: 12px 8px;
+      border-bottom: 1px solid #e9eef3;
+    }
+    
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    
+    .badge.success {
+      background: #dcfce7;
+      color: #15803d;
+    }
+    
+    .badge.remedial {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .nama-siswa {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .text-muted {
+      color: #64748b;
+      font-size: 0.75rem;
+    }
+    
+    /* ========== REMEDIAL FULLSCREEN NATIVE ========== */
+    .remedial-fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #f5f7fb;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .pdf-container {
+      flex: 1;
+      width: 100%;
+      background: #1e293b;
+      min-height: 0;
+      overflow: auto;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    
+    .pdf-iframe-wrapper {
+      transform-origin: top center;
+      transition: transform 0.1s ease;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .soal-pdf-frame {
+      width: 100%;
+      height: 100%;
+      min-height: 500px;
+      border: none;
+      background: #f1f5f9;
+    }
+    
+    /* Toolbar Zoom */
+    .zoom-toolbar {
+      position: fixed;
+      bottom: 140px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+      background: white;
+      padding: 8px;
+      border-radius: 60px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      z-index: 2020;
+      border: 1px solid #e9eef3;
+    }
+    
+    .zoom-btn {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      background: white;
+      color: #1e293b;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      font-weight: bold;
+      box-shadow: none;
+    }
+    
+    .zoom-btn i {
+      font-size: 1.1rem;
+    }
+    
+    .zoom-level {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      font-family: monospace;
+    }
+    
+    /* Sticky Pad Native */
+    .sticky-pad-native {
+      background: rgba(255,255,255,0.98);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid #e9eef3;
+      padding: 12px 16px 24px;
+    }
+    
+    .soal-info-native {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #475569;
+    }
+    
+    .progress-badge {
+      background: #f1f5f9;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+    }
+    
+    .jawaban-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .nav-btn {
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      background: #f1f5f9;
+      color: #1e293b;
+      border-radius: 50%;
+      font-size: 1rem;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .nav-btn i {
+      font-size: 1rem;
+    }
+    
+    .opsi-jawaban {
+      flex: 1;
+    }
+    
+    .radio-group-horizontal {
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+    }
+    
+    .radio-option {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      padding: 12px 0;
+      border-radius: 50px;
+      border: 1.5px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .radio-option.selected {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+    }
+    
+    .radio-option input {
+      display: none;
+    }
+    
+    .radio-option span {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    
+    .jawaban-textarea-native {
+      width: 100%;
+      border-radius: 14px;
+      min-height: 80px;
+      padding: 12px;
+      font-family: inherit;
+      border: 1.5px solid #e2e8f0;
+      font-size: 0.9rem;
+      background: #f8fafc;
+    }
+    
+    .submit-btn-native {
+      margin-top: 12px;
+      background: #10b981;
+    }
+    
+    .submit-btn-native.hidden {
+      display: none;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .exit-btn-native {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1e293b;
+      cursor: pointer;
+      z-index: 2010;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      border: none;
+    }
+    
+    .exit-btn-native i {
+      font-size: 1.2rem;
+    }
+    
+    .exit-btn-native:active {
+      transform: scale(0.95);
+    }
+    
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    button, .radio-option, .exit-btn-native, .zoom-btn, .nav-btn {
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="container">
+    <div class="header">
+      <img src="https://i.imgur.com/7v7aC3G.png" alt="Logo" class="logo">
+      <h1>Sistem Informasi Nilai Asesmen</h1>
+    </div>
+    
+    <!-- Login View -->
+    <div id="loginView" class="login-box">
+      <div class="form-group">
+        <label><i class="fas fa-user-graduate" style="margin-right: 6px;"></i> Nomor Induk Siswa (NIS)</label>
+        <div class="input-wrapper">
+          <i class="fas fa-id-card"></i>
+          <input type="text" id="nisInput" placeholder="Masukkan NIS" autocomplete="off">
+        </div>
+      </div>
+      <button id="loginBtn"><i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i> Masuk</button>
+      <div id="loginError" style="color:#e11d48; margin-top:16px; text-align:center; font-size:0.8rem;"></div>
+    </div>
+    
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="hidden">
+      <div class="card">
+        <div class="info-bar">
+          <div>
+            <div class="nama-siswa" id="namaSiswa"></div>
+            <div class="text-muted" id="kelasSiswa"></div>
+          </div>
+          <button id="logoutBtn" class="secondary" style="width: auto; padding: 8px 16px;"><i class="fas fa-sign-out-alt" style="margin-right: 6px;"></i> Keluar</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3><i class="fas fa-clipboard-list" style="margin-right: 8px;"></i> Daftar Asesmen</h3>
+        <div class="table-wrapper">
+          <table id="asesmenTable">
+            <thead>
+              <tr><th>Mata Pelajaran</th><th>Skor</th><th>Nilai</th><th>Status</th><th>Aksi</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Remedial View - Fullscreen Native -->
+<div id="remedialFullscreen" class="remedial-fullscreen hidden">
+  <button id="exitRemedialBtn" class="exit-btn-native"><i class="fas fa-times"></i></button>
+  
+  <div class="zoom-toolbar">
+    <button id="zoomOutBtn" class="zoom-btn"><i class="fas fa-search-minus"></i></button>
+    <span id="zoomLevel" class="zoom-level">100%</span>
+    <button id="zoomInBtn" class="zoom-btn"><i class="fas fa-search-plus"></i></button>
+    <button id="zoomResetBtn" class="zoom-btn"><i class="fas fa-sync-alt"></i></button>
+  </div>
+  
+  <div class="pdf-container" id="pdfContainer">
+    <div class="pdf-iframe-wrapper" id="pdfWrapper">
+      <iframe id="pdfFrame" class="soal-pdf-frame" src="about:blank"></iframe>
+    </div>
+  </div>
+  
+  <div class="sticky-pad-native">
+    <div class="soal-info-native">
+      <span><i class="fas fa-question-circle" style="margin-right: 6px;"></i><span id="soalInfo">Memuat soal...</span></span>
+      <span class="progress-badge" id="progressInfo">0 / 0</span>
+    </div>
+    
+    <div class="jawaban-container">
+      <button id="prevBtn" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+      <div id="jawabanArea" class="opsi-jawaban"></div>
+      <button id="nextBtn" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+    </div>
+    
+    <button id="submitBtn" class="submit-btn-native hidden"><i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Kirim Jawaban</button>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="loading-spinner"></div>
+</div>
+
+<script>
+  // ============ KONFIGURASI ============
+  // GANTI URL_INI dengan URL Web App Google Apps Script Anda!
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVl_3s_8uinzeBRE9RjSMGgaLFti2uG73qxel4Ixl19zFgU5KnpIpevo7_Wr9LyGkR/exec';
+  // =====================================
+  
+  var state = {
+    user: { nis: '', nama: '', kelas: '' },
+    remedial: null,
+    mapel: '',
+    kelas: '',
+    soalList: [],
+    index: 0,
+    jawaban: {},
+    nilaiAwal: 0,
+    zoom: 1.0
+  };
+  
+  // DOM Elements
+  var loginView = document.getElementById('loginView');
+  var dashboardView = document.getElementById('dashboardView');
+  var remedialFullscreen = document.getElementById('remedialFullscreen');
+  var loadingOverlay = document.getElementById('loadingOverlay');
+  var nisInput = document.getElementById('nisInput');
+  var loginBtn = document.getElementById('loginBtn');
+  var loginError = document.getElementById('loginError');
+  var logoutBtn = document.getElementById('logoutBtn');
+  var exitRemedialBtn = document.getElementById('exitRemedialBtn');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var submitBtn = document.getElementById('submitBtn');
+  var asesmenTable = document.querySelector('#asesmenTable tbody');
+  var namaSiswaSpan = document.getElementById('namaSiswa');
+  var kelasSiswaSpan = document.getElementById('kelasSiswa');
+  var pdfFrame = document.getElementById('pdfFrame');
+  var pdfWrapper = document.getElementById('pdfWrapper');
+  var zoomLevelSpan = document.getElementById('zoomLevel');
+  var zoomInBtn = document.getElementById('zoomInBtn');
+  var zoomOutBtn = document.getElementById('zoomOutBtn');
+  var zoomResetBtn = document.getElementById('zoomResetBtn');
+  var soalInfoSpan = document.getElementById('soalInfo');
+  var progressSpan = document.getElementById('progressInfo');
+  var jawabanArea = document.getElementById('jawabanArea');
+  
+  // Fungsi panggil Google Apps Script via fetch
+  async function callAppsScript(action, data = {}) {
+    showLoading(true);
+    try {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          action: action,
+          ...data
+        })
+      });
+      
+      // Karena mode no-cors, kita perlu pendekatan alternatif
+      // Gunakan JSONP atau redirect
+      return await response.json();
+    } catch (error) {
+      console.error('Error:', error);
+      showAlert('error', 'Koneksi Gagal', 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+      return null;
+    } finally {
+      showLoading(false);
+    }
+  }
+  
+  // Alternatif: Menggunakan google.script.run untuk embedded
+  // Jika dijalankan di environment Google Apps Script
+  function isRunningInAppsScript() {
+    return typeof google !== 'undefined' && google.script && google.script.run;
+  }
+  
+  function showLoading(show) {
+    if (show) {
+      loadingOverlay.classList.remove('hidden');
+    } else {
+      loadingOverlay.classList.add('hidden');
+    }
+  }
+  
+  function showAlert(icon, title, message) {
+    Swal.fire({
+      icon: icon,
+      title: title,
+      text: message,
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#0f172a',
+      background: '#ffffff',
+      borderRadius: '20px'
+    });
+  }
+  
+  function showConfirm(message) {
+    return Swal.fire({
+      title: 'Konfirmasi',
+      text: message,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Keluar',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      background: '#ffffff',
+      borderRadius: '20px'
+    });
+  }
+  
+  function updateZoom() {
+    var percent = Math.round(state.zoom * 100);
+    zoomLevelSpan.innerText = percent + '%';
+    pdfWrapper.style.transform = 'scale(' + state.zoom + ')';
+    pdfWrapper.style.width = (100 / state.zoom) + '%';
+  }
+  
+  function zoomIn() {
+    if (state.zoom < 2.5) {
+      state.zoom = Math.min(2.5, state.zoom + 0.1);
+      updateZoom();
+    }
+  }
+  
+  function zoomOut() {
+    if (state.zoom > 0.5) {
+      state.zoom = Math.max(0.5, state.zoom - 0.1);
+      updateZoom();
+    }
+  }
+  
+  function zoomReset() {
+    state.zoom = 1.0;
+    updateZoom();
+  }
+  
+  zoomInBtn.onclick = zoomIn;
+  zoomOutBtn.onclick = zoomOut;
+  zoomResetBtn.onclick = zoomReset;
+  
+  var pdfContainer = document.getElementById('pdfContainer');
+  var initialPinchDistance = 0;
+  
+  pdfContainer.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 2) {
+      var dx = e.touches[0].clientX - e.touches[1].clientX;
+      var dy = e.touches[0].clientY - e.touches[1].clientY;
+      initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
+    }
+  });
+  
+  pdfContainer.addEventListener('touchmove', function(e) {
+    if (e.touches.length === 2 && initialPinchDistance > 0) {
+      e.preventDefault();
+      var dx = e.touches[0].clientX - e.touches[1].clientX;
+      var dy = e.touches[0].clientY - e.touches[1].clientY;
+      var newDistance = Math.sqrt(dx * dx + dy * dy);
+      var ratio = newDistance / initialPinchDistance;
+      var newZoom = state.zoom * ratio;
+      if (newZoom >= 0.5 && newZoom <= 2.5) {
+        state.zoom = newZoom;
+        updateZoom();
+      }
+      initialPinchDistance = newDistance;
+    }
+  });
+  
+  function showResult(nilaiAwal, nilaiRemedial, nilaiAkhir, status, mapel, kkm) {
+    var isTuntas = status === 'Tuntas';
+    var selebrasi = isTuntas ? 'Selamat! Nilai kamu sudah Tuntas!' : 'Tetap semangat! Belajar lebih giat lagi!';
+    var icon = isTuntas ? 'success' : 'info';
+    var title = isTuntas ? 'Tuntas!' : 'Belum Tuntas';
+    var warna = isTuntas ? '#10b981' : '#f59e0b';
+    
+    Swal.fire({
+      icon: icon,
+      title: title,
+      html: `
+        <div style="text-align: left;">
+          <p style="margin-bottom: 8px;"><i class="fas fa-book-open"></i> <strong>Mata Pelajaran:</strong> ${mapel}</p>
+          <p style="margin-bottom: 8px;"><i class="fas fa-chart-line"></i> <strong>Nilai Awal:</strong> ${nilaiAwal}</p>
+          <p style="margin-bottom: 8px;"><i class="fas fa-edit"></i> <strong>Nilai Remedial:</strong> ${nilaiRemedial}</p>
+          <hr style="margin: 12px 0; border-color: #e2e8f0;">
+          <p style="margin-bottom: 8px;"><i class="fas fa-bullseye"></i> <strong>KKM:</strong> ${kkm}</p>
+          <p style="font-size: 1.3rem; font-weight: bold; color: ${warna}; margin-top: 12px;"><i class="fas fa-star"></i> <strong>Nilai Akhir:</strong> ${nilaiAkhir}</p>
+        </div>
+      `,
+      confirmButtonText: 'Kembali ke Dashboard',
+      confirmButtonColor: '#0f172a',
+      background: '#ffffff',
+      borderRadius: '20px'
+    }).then(function() {
+      backToDashboard();
+    });
+  }
+  
+  function updateSubmitButton() {
+    var semuaTerisi = true;
+    for (var i = 0; i < state.soalList.length; i++) {
+      var nomor = state.soalList[i].nomor;
+      if (!state.jawaban[nomor] || state.jawaban[nomor] === '') {
+        semuaTerisi = false;
+        break;
+      }
+    }
+    
+    if (semuaTerisi && state.soalList.length > 0) {
+      submitBtn.classList.remove('hidden');
+    } else {
+      submitBtn.classList.add('hidden');
+    }
+  }
+  
+  // Simulasi google.script.run untuk environment non-Apps Script
+  // Anda perlu membuat endpoint API di Apps Script yang mengembalikan JSON
+  // Untuk sementara, ini adalah placeholder
+  
+  // Jika dijalankan di dalam Google Apps Script Web App, gunakan ini:
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    // Environment Apps Script
+    window.loginWithNIS = function(nis, callback) {
+      google.script.run.withSuccessHandler(callback).loginWithNIS(nis);
+    };
+    window.getRemedialData = function(mapel, kelas, callback) {
+      google.script.run.withSuccessHandler(callback).getRemedialData(mapel, kelas);
+    };
+    window.saveJawaban = function(nis, nama, mapel, kelas, jawaban, callback) {
+      google.script.run.withSuccessHandler(callback).saveJawaban(nis, nama, mapel, kelas, jawaban);
+    };
+    window.updateNilaiAkhir = function(nis, mapel, kelas, nilaiAwal, nilaiRemedial, callback) {
+      google.script.run.withSuccessHandler(callback).updateNilaiAkhir(nis, mapel, kelas, nilaiAwal, nilaiRemedial);
+    };
+  } else {
+    // Environment non-Apps Script (GitHub Pages)
+    // Buat fungsi dummy yang membutuhkan CORS proxy atau API endpoint
+    showAlert('info', 'Mode Demo', 'Aplikasi berjalan dalam mode demo. Hubungkan dengan Web App Google Apps Script terlebih dahulu.');
+    
+    window.loginWithNIS = function(nis, callback) {
+      // Demo data
+      setTimeout(function() {
+        callback({
+          success: true,
+          nama: 'User Demo',
+          kelas: '5A',
+          asesmen: [
+            { mapel: 'Al-Quran Hadits', skor: 13, nilai: 43, status: 'Remedial' },
+            { mapel: 'Fikih', skor: 17, nilai: 57, status: 'Remedial' }
+          ]
+        });
+      }, 500);
+    };
+    
+    window.getRemedialData = function(mapel, kelas, callback) {
+      setTimeout(function() {
+        callback({
+          link: 'https://drive.google.com/file/d/example/preview',
+          pg: 20,
+          pgk: 3,
+          essay: 0
+        });
+      }, 500);
+    };
+    
+    window.saveJawaban = function(nis, nama, mapel, kelas, jawaban, callback) {
+      setTimeout(function() { callback(true); }, 500);
+    };
+    
+    window.updateNilaiAkhir = function(nis, mapel, kelas, nilaiAwal, nilaiRemedial, callback) {
+      setTimeout(function() {
+        callback({
+          nilaiAwal: nilaiAwal,
+          nilaiRemedial: nilaiRemedial,
+          nilaiAkhir: 70,
+          status: 'Tuntas',
+          kkm: 70
+        });
+      }, 500);
+    };
+  }
+  
+  // Login handler
+  loginBtn.onclick = function() {
+    var nis = nisInput.value.trim();
+    if (!nis) {
+      loginError.innerText = 'Masukkan NIS';
+      return;
+    }
+    loginError.innerText = '';
+    showLoading(true);
+    
+    window.loginWithNIS(nis, function(res) {
+      showLoading(false);
+      if (!res.success) {
+        loginError.innerText = res.message;
+        return;
+      }
+      state.user = { nis: nis, nama: res.nama, kelas: res.kelas };
+      namaSiswaSpan.innerText = res.nama;
+      kelasSiswaSpan.innerText = 'Kelas: ' + res.kelas;
+      
+      asesmenTable.innerHTML = '';
+      for (var i = 0; i < res.asesmen.length; i++) {
+        var item = res.asesmen[i];
+        var row = asesmenTable.insertRow();
+        row.insertCell(0).innerText = item.mapel;
+        row.insertCell(1).innerText = item.skor;
+        row.insertCell(2).innerText = item.nilai;
+        var statusClass = item.nilai >= 70 ? 'success' : 'remedial';
+        row.insertCell(3).innerHTML = '<span class="badge ' + statusClass + '">' + item.status + '</span>';
+        var actionCell = row.insertCell(4);
+        if (item.nilai < 70) {
+          var btn = document.createElement('button');
+          btn.innerHTML = '<i class="fas fa-play"></i> Kerjakan';
+          btn.className = 'btn-small';
+          btn.onclick = (function(m, k, n) {
+            return function() { startRemedial(m, k, n); };
+          })(item.mapel, item.kelas, item.nilai);
+          actionCell.appendChild(btn);
+        } else {
+          actionCell.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981;"></i>';
+        }
+      }
+      loginView.classList.add('hidden');
+      dashboardView.classList.remove('hidden');
+    });
+  };
+  
+  function startRemedial(mapel, kelas, nilaiAwal) {
+    state.mapel = mapel;
+    state.kelas = kelas;
+    state.nilaiAwal = nilaiAwal;
+    state.zoom = 1.0;
+    updateZoom();
+    
+    showLoading(true);
+    window.getRemedialData(mapel, kelas, function(res) {
+      showLoading(false);
+      if (!res) {
+        showAlert('error', 'Error', 'Data remedial tidak tersedia');
+        return;
+      }
+      state.remedial = res;
+      pdfFrame.src = res.link;
+      
+      state.soalList = [];
+      for (var i = 1; i <= res.pg; i++) state.soalList.push({ nomor: i, tipe: 'PG' });
+      for (var i = 1; i <= res.pgk; i++) state.soalList.push({ nomor: i, tipe: 'PGK' });
+      for (var i = 1; i <= res.essay; i++) state.soalList.push({ nomor: i, tipe: 'Essay' });
+      
+      if (state.soalList.length === 0) {
+        showAlert('warning', 'Perhatian', 'Tidak ada soal untuk remedial ini');
+        return;
+      }
+      
+      state.jawaban = {};
+      state.index = 0;
+      renderSoal();
+      dashboardView.classList.add('hidden');
+      remedialFullscreen.classList.remove('hidden');
+    });
+  }
+  
+  function renderSoal() {
+    if (state.soalList.length === 0) return;
+    var soal = state.soalList[state.index];
+    soalInfoSpan.innerHTML = '<i class="fas fa-hashtag"></i> Soal ' + soal.nomor + ' | ' + soal.tipe;
+    progressSpan.innerText = (state.index + 1) + ' / ' + state.soalList.length;
+    var saved = state.jawaban[soal.nomor] || '';
+    
+    if (soal.tipe === 'PG' || soal.tipe === 'PGK') {
+      var letters = ['A', 'B', 'C', 'D'];
+      var html = '<div class="radio-group-horizontal">';
+      for (var i = 0; i < letters.length; i++) {
+        var selectedClass = (saved === letters[i]) ? 'selected' : '';
+        html += '<label class="radio-option ' + selectedClass + '" data-value="' + letters[i] + '">' +
+          '<input type="radio" name="opsi" value="' + letters[i] + '" ' + (saved === letters[i] ? 'checked' : '') + '>' +
+          '<span>' + letters[i] + '</span>' +
+          '</label>';
+      }
+      html += '</div>';
+      jawabanArea.innerHTML = html;
+      
+      var options = document.querySelectorAll('.radio-option');
+      for (var i = 0; i < options.length; i++) {
+        options[i].onclick = (function(nomor, value) {
+          return function(e) {
+            state.jawaban[nomor] = value;
+            var allOpts = document.querySelectorAll('.radio-option');
+            for (var j = 0; j < allOpts.length; j++) {
+              allOpts[j].classList.remove('selected');
+            }
+            this.classList.add('selected');
+            updateSubmitButton();
+          };
+        })(soal.nomor, letters[i]);
+      }
+    } else {
+      jawabanArea.innerHTML = '<textarea id="essayAns" class="jawaban-textarea-native" placeholder="Tulis jawaban essay disini...">' + escapeHtml(saved) + '</textarea>';
+      var ta = document.getElementById('essayAns');
+      if (ta) {
+        ta.oninput = function(e) { 
+          state.jawaban[soal.nomor] = e.target.value;
+          updateSubmitButton();
+        };
+      }
+    }
+    updateSubmitButton();
+  }
+  
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+  
+  prevBtn.onclick = function() {
+    if (state.index > 0) {
+      state.index--;
+      renderSoal();
+    }
+  };
+  
+  nextBtn.onclick = function() {
+    if (state.index < state.soalList.length - 1) {
+      state.index++;
+      renderSoal();
+    }
+  };
+  
+  submitBtn.onclick = function() {
+    var jawabanArr = [];
+    for (var nomor in state.jawaban) {
+      for (var i = 0; i < state.soalList.length; i++) {
+        if (state.soalList[i].nomor == nomor) {
+          jawabanArr.push({
+            nomor: parseInt(nomor),
+            tipe: state.soalList[i].tipe,
+            jawaban: state.jawaban[nomor]
+          });
+          break;
+        }
+      }
+    }
+    
+    if (jawabanArr.length === 0) {
+      showAlert('warning', 'Perhatian', 'Belum ada jawaban yang diisi');
+      return;
+    }
+    
+    Swal.fire({
+      title: 'Konfirmasi',
+      text: 'Apakah Anda yakin ingin mengirim semua jawaban?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Kirim',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b'
+    }).then(function(result) {
+      if (result.isConfirmed) {
+        showLoading(true);
+        var totalSoal = jawabanArr.length;
+        var totalTerisi = 0;
+        for (var i = 0; i < jawabanArr.length; i++) {
+          if (jawabanArr[i].jawaban && jawabanArr[i].jawaban.trim() !== '') {
+            totalTerisi++;
+          }
+        }
+        var nilaiRemedial = Math.round((totalTerisi / totalSoal) * 100);
+        
+        window.saveJawaban(state.user.nis, state.user.nama, state.mapel, state.kelas, jawabanArr, function() {
+          window.updateNilaiAkhir(state.user.nis, state.mapel, state.kelas, state.nilaiAwal, nilaiRemedial, function(result) {
+            showLoading(false);
+            showResult(
+              result.nilaiAwal, 
+              result.nilaiRemedial, 
+              result.nilaiAkhir, 
+              result.status, 
+              state.mapel,
+              result.kkm
+            );
+          });
+        });
+      }
+    });
+  };
+  
+  function backToDashboard() {
+    remedialFullscreen.classList.add('hidden');
+    dashboardView.classList.remove('hidden');
+    pdfFrame.src = 'about:blank';
+    state.soalList = [];
+    state.jawaban = {};
+    submitBtn.classList.add('hidden');
+    state.zoom = 1.0;
+    updateZoom();
+  }
+  
+  exitRemedialBtn.onclick = function() {
+    showConfirm('Yakin ingin keluar? Jawaban yang belum disimpan akan hilang.').then(function(result) {
+      if (result.isConfirmed) {
+        backToDashboard();
+      }
+    });
+  };
+  
+  logoutBtn.onclick = function() {
+    dashboardView.classList.add('hidden');
+    loginView.classList.remove('hidden');
+    nisInput.value = '';
+    state.user = {};
+  };
+  
+  nisInput.onkeypress = function(e) {
+    if (e.key === 'Enter') loginBtn.click();
+  };
+</script>
+</body>
+</html>
